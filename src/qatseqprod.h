@@ -41,6 +41,10 @@ extern "C" {
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include "zstd.h"
+#include "cpa.h"
+#include "cpa_dc.h"
+#include "icp_sal_poll.h"
+#include "icp_sal_user.h"
 
 /**
  * Version
@@ -52,6 +56,20 @@ extern "C" {
 #define QZSTD_VERSION_NUMBER  (QZSTD_VERSION_MAJOR *100*100 + QZSTD_VERSION_MINOR *100 \
                                 + QZSTD_VERSION_RELEASE)
 
+/** QZSTD_Session_T:
+ *  This structure contains all session parameters including a buffer used to store
+ *  lz4s output for current session and other parameters
+ */
+typedef struct QZSTD_Session_S {
+    int instHint; /*which instance we last used*/
+    unsigned char
+    *qatIntermediateBuf;  /* Buffer to store lz4s output for decoding */
+    unsigned char reqPhyContMem; /* 1: QAT requires physically contiguous memory */
+    CpaDcSessionSetupData
+    sessionSetupData; /* Session set up data for this session */
+    unsigned int failOffloadCnt; /* Failed offloading requests counter */
+} QZSTD_Session_T;
+
 /** QZSTD_Status_e:
  *  Error code indicates status
  */
@@ -60,6 +78,8 @@ typedef enum {
     QZSTD_STARTED = 1,  /* QAT device started */
     QZSTD_FAIL = -1     /* Unspecified error */
 } QZSTD_Status_e;
+
+void QZSTD_setupSess(QZSTD_Session_T *zstdSess);
 
 /** QZSTD_version:
  *    Return the version of QAT Zstd Plugin.

@@ -106,15 +106,15 @@
  *  This structure contains all session parameters including a buffer used to store
  *  lz4s output for current session and other parameters
  */
-typedef struct QZSTD_Session_S {
-    int instHint; /*which instance we last used*/
-    unsigned char
-    *qatIntermediateBuf;  /* Buffer to store lz4s output for decoding */
-    unsigned char reqPhyContMem; /* 1: QAT requires physically contiguous memory */
-    CpaDcSessionSetupData
-    sessionSetupData; /* Session set up data for this session */
-    unsigned int failOffloadCnt; /* Failed offloading requests counter */
-} QZSTD_Session_T;
+// typedef struct QZSTD_Session_S {
+//     int instHint; /*which instance we last used*/
+//     unsigned char
+//     *qatIntermediateBuf;  /* Buffer to store lz4s output for decoding */
+//     unsigned char reqPhyContMem; /* 1: QAT requires physically contiguous memory */
+//     CpaDcSessionSetupData
+//     sessionSetupData; /* Session set up data for this session */
+//     unsigned int failOffloadCnt; /* Failed offloading requests counter */
+// } QZSTD_Session_T;
 
 /** QZSTD_Instance_T:
  *  This structure contains instance parameter, every session need to grab one
@@ -625,6 +625,7 @@ static int QZSTD_getAndShuffleInstance(void)
         free(newInst);
         instanceMatched++;
     }
+    QZSTD_LOG(1, "instance matched: %d\n", instanceMatched);
 
     if (instanceMatched == 0) {
         QZSTD_LOG(1, "No instance matched\n");
@@ -921,7 +922,8 @@ static void QZSTD_releaseInstance(int i)
     __sync_lock_release(&(gProcess.qzstdInst[i].lock));
 }
 
-static void QZSTD_setupSess(QZSTD_Session_T *zstdSess)
+//static void QZSTD_setupSess(QZSTD_Session_T *zstdSess)
+void QZSTD_setupSess(QZSTD_Session_T *zstdSess)
 {
     zstdSess->instHint = -1;
     zstdSess->sessionSetupData.compType = CPA_DC_LZ4S;
